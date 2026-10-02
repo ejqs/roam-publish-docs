@@ -10,7 +10,7 @@
 │  • cache {uid → hash,url}│   status, url      │                            │        │          │
 └──────────────────────────┘                    │ Next.js website            │ ◀───── │ /{graph} │
                                                 │  • onboarding (verify)     │        │ /c/{…}   │
- Roam Append API  ◀── one block, once ───────── │  • dashboard, keys, access │ ─────▶ │ /discover│
+ Roam Append API  ◀── verify + change log ───── │  • dashboard, keys, access │ ─────▶ │ /discover│
  (append-api.roamresearch.com)                  │  • public renderer, RSS    │        │ feed.xml │
                                                 │                            │        └──────────┘
                                                 │ Postgres (Drizzle)         │
@@ -34,7 +34,8 @@ by deploying the server, not by waiting for users to update a Roam Depot extensi
    local date (`MM-DD-YYYY`) so the block lands on the user's today.
 3. The server calls Roam's Append API and writes `roam.pub connected this graph (safe to delete)` to that daily
    note. A successful write proves control: Roam only gives tokens to a graph's admins and rejects a token used on
-   another graph. **The token is never stored.**
+   another graph. The token is then **stored encrypted** for the change log (Flow 3). Owners of graphs verified
+   before that can add one in graph settings.
 4. First account to verify a graph owns it (`graph.userId`). Anyone else is told to ask the owner for an invite.
 5. User goes to `/dashboard/keys`, generates their key (`rp_…`, shown once), and pastes it into the extension
    settings.
@@ -65,3 +66,19 @@ collections, members, Discover, feeds, bulk changes) are website-only. Making a 
 also puts it in its graph's RSS feed when the owner turned that feed on and the page is open to everyone. The extension's only management calls are
 **make public / make unlisted** (`PATCH`) and **unpublish** (`DELETE`). See
 [where-to-look.md](where-to-look.md) for the server docs on those.
+
+## Flow 3: Shortlinks and the change log
+
+1. Before publishing, the extension asks `POST /api/ext/shortlinks` for the page's permanent `roam.pub/p/{id}` (8
+   chars, keyed by graph + `rootUid`, so it survives unpublishing) and writes `{shortUrl} {tag}` as the first or last
+   child of the page or block. It sends that block's uid as `anchorUid` with the publish.
+2. Shortlink blocks and everything under them are left out of the tree before hashing, so they never count as
+   content changes. The server drops them from the stored tree as well.
+3. Whenever something happens to the page (publish, republish, visibility, Discover, collections, access, unpublish,
+   moderation), the server appends a dated entry under the anchor with the graph's stored append-only token, after
+   the response (`after()`), never failing the request.
+4. `/p/{id}` shows the graph's owner and members where the page lives, with links to copy; everyone else is
+   redirected to the page.
+
+The Append API can only append (always last, no edit, move or delete), which is why the extension places the
+anchor block and the server only ever appends under it.
