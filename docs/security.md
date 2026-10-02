@@ -12,6 +12,7 @@ the extension README's *Safety* section, and the server's moderation/auth code.
 | Extension → server | `PublishPayload` + hash + author, API key | Only on a user action |
 | Server → extension | Status, URL, hash, visibility, publication list, error strings | In response |
 | Website → Roam Append API | One block on today's daily note, using a token the user pasted | Once, at graph verification |
+| Server → feed readers | Title, link, date, plain-text excerpt and byline of open, listed pages | Graph and collection feeds only when the owner turns them on; Discover's always |
 | Extension → anywhere else | Nothing | — |
 
 ## Two different credentials, never mixed
@@ -27,6 +28,14 @@ An earlier design had the server write a claim code to the daily note and the ex
 Anyone who could read the graph (collaborators on a shared graph) could claim it first. Now verification finishes on
 the website and the user pastes the key, so nothing in the graph is a secret. `POST /api/ext/claim` returns `410`
 for old extension builds.
+
+## RSS feeds
+
+Feed readers fetch `feed.xml` without cookies or a session, so a feed can't check a password or membership. Feeds
+therefore only ever list pages that are open to everyone and listed (public in the graph, or listed in the
+collection), and a graph or collection feed `404`s unless its front page is open too. Unlisted, password-protected,
+members-only and removed pages never appear. Once an item is in a feed, readers may keep a copy of its excerpt after
+the page is unpublished; the extension's "Make public" is the step that can put a page there.
 
 ## Shared graphs
 
