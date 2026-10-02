@@ -13,6 +13,7 @@ the extension README's *Safety* section, and the server's moderation/auth code.
 | Server → extension | Status, URL, hash, visibility, publication list, error strings | In response |
 | Website → Roam Append API | One block on today's daily note, using a token the user pasted | At graph verification, and when a token is added in graph settings |
 | Server → Roam Append API | Change log entries (date, event, roam.pub URLs) under a page's shortlink block | After publish/website changes, when the graph has a stored token and the page has a shortlink block |
+| Extension → server | Uids of the Changelog blocks it can and can't find (no text) | Every 5 minutes while Roam is open, when shortlink blocks are on |
 | Extension → Roam | One shortlink block (`{server}/p/{id} {tag}`) per published page or block, created or edited in place | On publish, unless turned off in settings |
 | Server → feed readers | Title, link, date, plain-text excerpt and byline of open, listed pages | Graph and collection feeds only when the owner turns them on; Discover's always |
 | Extension → anywhere else | Nothing | — |

@@ -84,5 +84,12 @@ also puts it in its graph's RSS feed when the owner turned that feed on and the 
    token). Publish and sync responses carry the same status, and the extension warns once per session when Roam
    has rejected the token.
 
+Roam's Append API writes to the daily note (under "Append API Captures attempted under non-existent blocks")
+when the target block doesn't exist, and an append-only token can't read the graph to check. So the extension
+confirms Changelog blocks every 5 minutes while Roam is open (`POST /api/ext/changelog/confirm`), the server only
+writes to blocks confirmed in the last 10 minutes, and a block reported missing stops that page's change log and
+shows on the dashboard until the page is republished (or the issue is ignored). Entries are queued and sent in the
+background, batched per page, at most one Append API call per graph every 10s.
+
 The Append API can only append (always last, no edit, move or delete), which is why the extension places the
 anchor block and the server only ever appends under it.
