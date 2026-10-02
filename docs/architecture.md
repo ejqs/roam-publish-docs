@@ -55,13 +55,14 @@ could claim the key first. `POST /api/ext/claim` now returns `410`.
 5. Otherwise `POST /api/ext/publications` with the payload, the hash and the author name.
 6. Server validates with zod, **recomputes the hash and rejects mismatches**, checks ownership, then creates or
    updates. New pages start `unlisted`, with access copied from the graph's current default, and join default
-   collections the publisher belongs to.
+   collections the publisher belongs to. The server also derives the page's tags (`#tag`, `Tags::`) and search
+   text from the tree; the extension sends nothing extra for them, so the hash is unaffected.
 7. Server returns `created | updated | unchanged` with the URL. The extension caches it and copies the link. On
    `created`+`unlisted` the toast offers **Make public**.
 
 ## After publishing
 
-Reading (rendering, access gates, slug redirects, view counting, RSS feeds) and managing (listing, access, passwords,
+Reading (rendering, access gates, slug redirects, view counting, RSS feeds, tags and search) and managing (listing, access, passwords,
 collections, members, Discover, feeds, bulk changes) are website-only. Making a page **public** from the extension
 also puts it in its graph's RSS feed when the owner turned that feed on and the page is open to everyone. The extension's only management calls are
 **make public / make unlisted** (`PATCH`) and **unpublish** (`DELETE`). See
