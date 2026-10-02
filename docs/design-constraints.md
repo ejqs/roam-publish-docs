@@ -49,6 +49,9 @@ Rules internal to one repo (e.g. how access defaults or Discover work) live in t
 18. **Ownership is enforced server-side only.** Members get `403` on others' pages; the extension's `mine` field is
     informational.
 19. **A removed page can't be deleted or republished** (`403`), so unpublish-and-republish can't dodge a takedown.
+    For the same reason, a graph with a removed page can't be deleted from the website either. Once a graph or account
+    is deleted, its keys get `401 Invalid API key`, which the extension shows as "get a new key". See
+    [security.md](security.md#deleting-graphs-and-accounts).
 
 ## Transport
 

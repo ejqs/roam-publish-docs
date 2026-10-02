@@ -44,6 +44,25 @@ the page is unpublished; the extension's "Make public" is the step that can put 
 - Open question: whether Roam Depot extension settings (where the key lives) are per-person or shared in a
   multiplayer graph. See [open-questions.md](open-questions.md).
 
+## Deleting graphs and accounts
+
+Deleting can't be a way out of a moderation action:
+
+- **A single graph** can't be deleted while it's suspended or has a removed page, just as a suspended collection
+  or a removed page can't be. Deleting a graph deletes all its pages, members' pages included, and every key for it
+  (`401 Invalid API key` from then on).
+- **An account** can always be deleted. If a moderator had acted on it (ban, suspended graph or collection, removed
+  page), a blocklist keeps what a fresh account would need to pick up where it left off:
+  - **Graph names.** This is the strong anchor: connecting a graph takes the graph's own Roam token, so a new
+    email doesn't get past it. Every graph the account owned is listed, not only the sanctioned one.
+  - **The email**, as a sha256 hash of the address lowercased and without its `+tag`. A new address gets past it,
+    so it only slows people down.
+  - **Usernames**, current and former, so nobody can claim the name and impersonate the account.
+  - **Suspended collections' slugs**, which stay reserved under `/c/`.
+
+  Admins lift entries at `/admin/blocked`. Accounts deleted without any moderation action leave nothing behind
+  except a log line.
+
 ## The server never trusts the payload for identity
 
 The graph, the person and their role all come from the key. The server re-hashes content, validates with zod, caps
