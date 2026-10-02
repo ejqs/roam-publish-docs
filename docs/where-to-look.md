@@ -27,6 +27,7 @@ Everything not about the interaction lives in its own repo.
 | Access, places, passwords | `src/lib/gates.ts`, `src/lib/places.ts`, contract § *Places and access* |
 | Discover rules | `src/lib/discover-rules.ts`, `src/lib/discover.ts` |
 | RSS feeds | `src/lib/feeds.ts`, `src/app/**/feed.xml/route.ts`, contract § *RSS feeds* |
+| Tags, search, list filters | `src/lib/tags.ts`, `src/lib/list-params.ts`, `src/lib/list-query.ts`, `src/lib/site-search.ts`, contract § *Tags and search* |
 | Members, invites, transfers | `src/lib/invites.ts`, `src/lib/graph-access.ts` |
 | Moderation | `src/lib/moderation*.ts`, `src/app/admin/**` |
 | Rendering Roam markup | `src/components/roam/*` |
