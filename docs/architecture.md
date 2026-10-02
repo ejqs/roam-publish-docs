@@ -70,6 +70,9 @@ also puts it in its graph's RSS feed when the owner turned that feed on and the 
 
 ## Flow 3: Shortlinks and the change log
 
+For the full read/send/write picture from a user's point of view, see
+[Data flow and the Append API](data-and-append-api.md).
+
 1. Before publishing, the extension asks `POST /api/ext/shortlinks` for the page's permanent `roam.pub/p/{id}` (8
    chars, keyed by graph + `rootUid`, so it survives unpublishing) and writes `{tag}` with two children, `{shortUrl}`
    and `Changelog`, as the first or last child of the page or block. It sends the `Changelog` block's uid as
