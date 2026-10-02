@@ -70,15 +70,19 @@ also puts it in its graph's RSS feed when the owner turned that feed on and the 
 ## Flow 3: Shortlinks and the change log
 
 1. Before publishing, the extension asks `POST /api/ext/shortlinks` for the page's permanent `roam.pub/p/{id}` (8
-   chars, keyed by graph + `rootUid`, so it survives unpublishing) and writes `{shortUrl} {tag}` as the first or last
-   child of the page or block. It sends that block's uid as `anchorUid` with the publish.
+   chars, keyed by graph + `rootUid`, so it survives unpublishing) and writes `{tag}` with two children, `{shortUrl}`
+   and `Changelog`, as the first or last child of the page or block. It sends the `Changelog` block's uid as
+   `anchorUid` with the publish.
 2. Shortlink blocks and everything under them are left out of the tree before hashing, so they never count as
    content changes. The server drops them from the stored tree as well.
 3. Whenever something happens to the page (publish, republish, visibility, Discover, collections, access, unpublish,
    moderation), the server appends a dated entry under the anchor with the graph's stored append-only token, after
    the response (`after()`), never failing the request.
 4. `/p/{id}` shows the graph's owner and members where the page lives, with links to copy; everyone else is
-   redirected to the page.
+   redirected to the first place they can read it (graph, then collections), else to the page's gate.
+5. The extension's **Check change log** reads `GET /api/ext/changelog` (status and when Roam last accepted the
+   token). Publish and sync responses carry the same status, and the extension warns once per session when Roam
+   has rejected the token.
 
 The Append API can only append (always last, no edit, move or delete), which is why the extension places the
 anchor block and the server only ever appends under it.
