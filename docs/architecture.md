@@ -11,7 +11,8 @@
 └──────────────────────────┘                    │ Next.js website            │ ◀───── │ /{graph} │
                                                 │  • onboarding (verify)     │        │ /c/{…}   │
  Roam Append API  ◀── one block, once ───────── │  • dashboard, keys, access │ ─────▶ │ /discover│
- (append-api.roamresearch.com)                  │  • public renderer         │        └──────────┘
+ (append-api.roamresearch.com)                  │  • public renderer, RSS    │        │ feed.xml │
+                                                │                            │        └──────────┘
                                                 │ Postgres (Drizzle)         │
                                                 └────────────────────────────┘
 ```
@@ -20,8 +21,8 @@ The split is deliberate: **the extension is a thin, dumb sender; the server owns
 
 - The extension only knows how to turn a Roam page or block into a tree, hash it, and send it. It knows about
   `public` / `unlisted`, and nothing else about who can read a page.
-- Access (open / password / members), collections, members, Discover, bylines, moderation and every setting live on
-  the website. None of it is exposed to the extension API.
+- Access (open / password / members), collections, members, Discover, RSS feeds, bylines, moderation and every
+  setting live on the website. None of it is exposed to the extension API.
 
 This keeps the extension small, keeps the attack surface in Roam tiny, and means product changes ship
 by deploying the server, not by waiting for users to update a Roam Depot extension.
@@ -59,7 +60,8 @@ could claim the key first. `POST /api/ext/claim` now returns `410`.
 
 ## After publishing
 
-Reading (rendering, access gates, slug redirects, view counting) and managing (listing, access, passwords,
-collections, members, Discover, bulk changes) are website-only. The extension's only management calls are
+Reading (rendering, access gates, slug redirects, view counting, RSS feeds) and managing (listing, access, passwords,
+collections, members, Discover, feeds, bulk changes) are website-only. Making a page **public** from the extension
+also puts it in its graph's RSS feed when the owner turned that feed on and the page is open to everyone. The extension's only management calls are
 **make public / make unlisted** (`PATCH`) and **unpublish** (`DELETE`). See
 [where-to-look.md](where-to-look.md) for the server docs on those.
