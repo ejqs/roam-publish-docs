@@ -13,9 +13,11 @@ what spans both — the boundary, the shared invariants, and how to change them 
 1. [Architecture](docs/architecture.md) — who does what, and the flows that cross the boundary.
 2. [Shared invariants](docs/design-constraints.md) — rules both repos must keep in lockstep.
 3. [Trust boundary](docs/security.md) — what crosses between Roam, the extension and the server.
-4. [Shipping changes](docs/shipping-changes.md) — changing the contract without breaking installed extensions.
-5. [Open questions](docs/open-questions.md) — unverified assumptions that involve both sides.
-6. [Where things are documented](docs/where-to-look.md) — pointers into each repo for everything else.
+4. [Data flow and the Append API](docs/data-and-append-api.md) — what the extension reads, sends and writes, and how
+   roam.pub uses Roam's Append API.
+5. [Shipping changes](docs/shipping-changes.md) — changing the contract without breaking installed extensions.
+6. [Open questions](docs/open-questions.md) — unverified assumptions that involve both sides.
+7. [Where things are documented](docs/where-to-look.md) — pointers into each repo for everything else.
 
 `inbox/` holds raw notes not yet folded in.
 
