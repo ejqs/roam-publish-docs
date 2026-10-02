@@ -11,14 +11,30 @@ the extension README's *Safety* section, and the server's moderation/auth code.
 | Roam → extension | The selected tree, referenced block text, embedded trees | Only on a publish action |
 | Extension → server | `PublishPayload` + hash + author, API key | Only on a user action |
 | Server → extension | Status, URL, hash, visibility, publication list, error strings | In response |
-| Website → Roam Append API | One block on today's daily note, using a token the user pasted | Once, at graph verification |
+| Website → Roam Append API | One block on today's daily note, using a token the user pasted | At graph verification, and when a token is added in graph settings |
+| Server → Roam Append API | Change log entries (date, event, roam.pub URLs) under a page's shortlink block | After publish/website changes, when the graph has a stored token and the page has a shortlink block |
+| Extension → Roam | One shortlink block (`{server}/p/{id} {tag}`) per published page or block, created or edited in place | On publish, unless turned off in settings |
 | Server → feed readers | Title, link, date, plain-text excerpt and byline of open, listed pages | Graph and collection feeds only when the owner turns them on; Discover's always |
 | Extension → anywhere else | Nothing | — |
 
 ## Two different credentials, never mixed
 
-- **Roam append-only token** (`roam-graph-token-…`): entered on the **website**, used once to prove control of a
-  graph, never stored. Can only add blocks; can't read the graph.
+- **Roam append-only token** (`roam-graph-token-…`): entered on the **website**. Proves control of a graph at
+  verification, then is kept **AES-256-GCM encrypted** (`graph.append_token_enc`, key `APPEND_TOKEN_KEY`, never
+  logged or sent back) for the change log. Can only add blocks; can't read, edit or delete. The owner removes it in
+  graph settings or revokes it in Roam; a 401/403 from Roam marks it invalid and stops all writes until replaced.
+  - What a leaked token (plus the key) allows: appending blocks to that one graph.
+  - **Key leaked, database not:** the key alone decrypts nothing. Rotate it: set `APPEND_TOKEN_KEY_PREVIOUS` to the
+    old key and `APPEND_TOKEN_KEY` to a new one, deploy, run `railway run bun run tokens:rotate`, then remove
+    `APPEND_TOKEN_KEY_PREVIOUS` and deploy.
+  - **Key and database leaked:** treat the tokens as exposed. Set a new key, deploy, run
+    `railway run bun run tokens:revoke-all` (owners get a banner asking for a new token), and tell owners to revoke
+    the old token in Roam.
+  - A token the server can't decrypt (e.g. the key changed without `tokens:rotate`) marks the graph invalid, so its
+    owner is asked for a new one rather than the log silently stopping.
+  - What the server writes: only dated entries under a block uid the extension reported as the page's shortlink
+    block. Text comes from server-side events (titles, collection names, URLs, a moderator's removal reason), never
+    from readers.
 - **Roam Publish API key** (`rp_…`): issued on the website, pasted into the **extension**. Lets the server act for
   that person on that one graph. Gives **no** access to the Roam graph. Stored hashed server-side; shown once.
 
