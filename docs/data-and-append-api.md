@@ -60,7 +60,7 @@ audio and PDFs are sent as the URLs in the text; the files themselves aren't. Th
 
 | Where | What | When |
 | --- | --- | --- |
-| The published page, first or last child | The Roam Publish block: `{tag}` with `[{text}]({server}/p/{id})` under it | On publish, when **Add Roam Publish block** is on. Pages only, unless **Roam Publish block on published blocks** is on. |
+| The published page, first or last child | The Roam Publish block: `{tag}` with `[{text}]({server}/p/{id})` under it | On publish: for pages when **Add Roam Publish block when publishing pages** is on, for blocks when **Add Roam Publish block when publishing blocks** is on. |
 | The same blocks | Updated tag or link text | On the next publish after you change those settings |
 | Roam's extension settings for the graph | API key, author name, Roam Publish block settings, and a cache of what's published (hash, URLs, title, visibility, status link uid) | When you change a setting or publish |
 | Your clipboard | The published page's URL | On publish |
@@ -156,8 +156,8 @@ A background worker sends queued entries:
 
 | Setting | Effect on reads, sends and writes |
 | --- | --- |
-| **Add Roam Publish block** off | The extension doesn't write a Roam Publish block, doesn't call `/api/ext/shortlinks`, sends no `anchorUid` and doesn't run the 5-minute confirmation. roam.pub still gives the page a status link on publish and keeps its history on the website, but writes nothing to Roam for new pages. Pages that already have a status link block from before keep it; their new entries wait for a confirmation that doesn't come, and are dropped after 7 days unless the setting is turned back on. |
-| **Roam Publish block on published blocks** off (default) | Published blocks (as opposed to pages) get no Roam Publish block, so nothing is written under them. |
+| **Add Roam Publish block when publishing pages** off | The extension doesn't write a Roam Publish block on pages and, for pages, doesn't call `/api/ext/shortlinks`, sends no `anchorUid` and leaves them out of the 5-minute confirmation (which doesn't run at all when the blocks setting is off too). roam.pub still gives the page a status link on publish and keeps its history on the website, but writes nothing to Roam for new pages. Pages that already have a status link block from before keep it; their new entries wait for a confirmation that doesn't come, and are dropped after 7 days unless the setting is turned back on. |
+| **Add Roam Publish block when publishing blocks** off (default) | Published blocks (as opposed to pages) get no Roam Publish block, so nothing is written under them. The two settings are independent. |
 | Change log paused on the website | The extension skips the confirmation and only checks the status. Entries are kept as history only. The token stays stored. |
 | No token stored | Same as paused. Verification was the only write. |
 | **Server URL** | Every request above goes to this server instead of roam.pub. |
