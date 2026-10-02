@@ -23,9 +23,15 @@ the extension README's *Safety* section, and the server's moderation/auth code.
   verification, then is kept **AES-256-GCM encrypted** (`graph.append_token_enc`, key `APPEND_TOKEN_KEY`, never
   logged or sent back) for the change log. Can only add blocks; can't read, edit or delete. The owner removes it in
   graph settings or revokes it in Roam; a 401/403 from Roam marks it invalid and stops all writes until replaced.
-  - What a leaked token (plus the key) allows: appending blocks to that one graph. Rotating `APPEND_TOKEN_KEY`
-    makes stored tokens undecryptable (`decryptToken` returns null and nothing is written), so owners must add
-    theirs again.
+  - What a leaked token (plus the key) allows: appending blocks to that one graph.
+  - **Key leaked, database not:** the key alone decrypts nothing. Rotate it: set `APPEND_TOKEN_KEY_PREVIOUS` to the
+    old key and `APPEND_TOKEN_KEY` to a new one, deploy, run `railway run bun run tokens:rotate`, then remove
+    `APPEND_TOKEN_KEY_PREVIOUS` and deploy.
+  - **Key and database leaked:** treat the tokens as exposed. Set a new key, deploy, run
+    `railway run bun run tokens:revoke-all` (owners get a banner asking for a new token), and tell owners to revoke
+    the old token in Roam.
+  - A token the server can't decrypt (e.g. the key changed without `tokens:rotate`) marks the graph invalid, so its
+    owner is asked for a new one rather than the log silently stopping.
   - What the server writes: only dated entries under a block uid the extension reported as the page's shortlink
     block. Text comes from server-side events (titles, collection names, URLs, a moderator's removal reason), never
     from readers.
