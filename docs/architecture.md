@@ -68,6 +68,23 @@ also puts it in its graph's RSS feed when the owner turned that feed on and the 
 **make public / make unlisted** (`PATCH`) and **unpublish** (`DELETE`). See
 [where-to-look.md](where-to-look.md) for the server docs on those.
 
+### View counts
+
+Page footers show a view count ("1.4k views", with the top reader countries as flags). It comes from two sources
+the server owns. The extension sends nothing for it.
+
+- **Umami**: the operator's Umami Cloud site. Background jobs read it, never the page request:
+  - a daily full sweep reads every path's all-time views;
+  - an hourly sweep adds recent views to pages being read, with bigger counts updated less often;
+  - a budgeted country lookup runs one call per page.
+
+  Results land in `page_views`.
+- **Signed-in Roam readers**: the existing first-party `publication_view` rows.
+
+Graphs and collections choose show, managers only, or off, and each page can override that. Unlisted pages show
+their count only when the page itself is set to show. Managers of a busy password-protected page get a footer
+warning. Job status is at `/admin/jobs`.
+
 ## Flow 3: Shortlinks and the change log
 
 For the full read/send/write picture from a user's point of view, see
