@@ -82,8 +82,9 @@ the server owns. The extension sends nothing for it.
 - **Signed-in Roam readers**: the existing first-party `publication_view` rows.
 
 Graphs and collections choose show, managers only, or off, and each page can override that. Unlisted pages show
-their count only when the page itself is set to show. Managers of a busy password-protected page get a footer
-warning. Job status is at `/admin/jobs`.
+their count only when the page itself is set to show. Password-protected pages count successful password entries
+instead of Umami visits, and warn their managers when the current password has been entered often. Members-only
+pages have no count. Job status is at `/admin/jobs`.
 
 ## Flow 3: Shortlinks and the change log
 
