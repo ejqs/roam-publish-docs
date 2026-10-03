@@ -58,6 +58,7 @@ Rules internal to one repo (e.g. how access defaults or Discover work) live in t
 20. Header `x-api-key: rp_…`; one key per person per graph.
 21. CORS: `https://roamresearch.com` (+ `localhost` outside production); headers `content-type, x-api-key`;
     methods `GET, POST, PATCH, DELETE, OPTIONS`.
-22. Payload ≤1 MB; block strings ≤100k chars; titles ≤1000; uids ≤64. The extension doesn't pre-check these.
+22. Payload ≤1 MB (bytes); block strings ≤100k chars; titles ≤1000; uids ≤64; trees ≤200 levels deep, counting
+    children and embeds. The extension doesn't pre-check these.
 23. Default server URL is baked in at build time (`ROAM_PUBLISH_SERVER`, default `https://roam.pub`) and
     overridable in settings.
