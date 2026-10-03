@@ -82,8 +82,8 @@ For the full read/send/write picture from a user's point of view, see
 3. Whenever something happens to the page (publish, republish, visibility, Discover, collections, access, unpublish,
    moderation), the server appends a dated entry under the anchor with the graph's stored append-only token, after
    the response (`after()`), never failing the request.
-4. `/p/{id}` shows the graph's owner and members where the page lives, with links to copy; everyone else is
-   redirected to the first place they can read it (graph, then collections), else to the page's gate.
+4. `/p/{id}` shows the graph's owner and members where the page lives, with links to copy, and its history.
+   Signed-out visitors are sent to log in; anyone else signed in gets a 404, never the page itself.
 5. The extension's **Check change log** reads `GET /api/ext/changelog` (status and when Roam last accepted the
    token). Publish and sync responses carry the same status, and the extension warns once per session when Roam
    has rejected the token.
