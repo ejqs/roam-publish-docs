@@ -57,14 +57,16 @@ could claim the key first. `POST /api/ext/claim` now returns `410`.
    collections the publisher belongs to. The server also derives the page's tags (`#tag`, `Tags::`) and search
    text from the tree; the extension sends nothing extra for them, so the hash is unaffected.
 6. Server returns `created | updated | unchanged` with the URL. The extension caches it and copies the link. On
-   `created`+`unlisted` the toast offers **Make public**.
+   `created`+`unlisted` the toast offers **Make listed**, and **Make discoverable** when the server's
+   `discoverBlocked` is null.
 
 ## After publishing
 
 Reading (rendering, access gates, slug redirects, view counting, RSS feeds, tags and search) and managing (listing, access, passwords,
-collections, members, Discover, feeds, bulk changes) are website-only. Making a page **public** from the extension
+collections, members, Discover, feeds, bulk changes) are website-only. Making a page **listed** (or **discoverable**) from the extension
 also puts it in its graph's RSS feed when the owner turned that feed on and the page is open to everyone. The extension's only management calls are
-**make public / make unlisted** (`PATCH`) and **unpublish** (`DELETE`). See
+**make listed / make discoverable / make unlisted** (`PATCH` with `listing`; every response carries `listing` and
+`discoverBlocked`, the reason it can't be Discoverable, so the extension never works out Discover rules itself) and **unpublish** (`DELETE`). See
 [where-to-look.md](where-to-look.md) for the server docs on those.
 
 ### View counts

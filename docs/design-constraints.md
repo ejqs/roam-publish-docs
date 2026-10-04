@@ -40,10 +40,11 @@ Rules internal to one repo (e.g. how access defaults or Discover work) live in t
 
 ## Behaviour the extension assumes
 
-14. **New publications are `unlisted`.** The "Make public" toast action depends on `created` + `unlisted`.
+14. **New publications are `unlisted`.** The "Make listed" / "Make discoverable" toast actions depend on `created` + `unlisted`.
 15. **Republishing never changes visibility or access.**
-16. **Visibility is the only access concept the extension sees** (`public` | `unlisted`). Everything else is
-    website-only by design, so the server can evolve it without an extension release.
+16. **Listing is the only access concept the extension sees** (`unlisted` | `listed` | `discover`, plus the
+    server's `discoverBlocked` reason). Everything else is website-only by design, so the server can evolve it
+    without an extension release; the Discover rules live on the server only.
 17. **Errors are shown verbatim.** The extension displays `error` (+ ` Reason: {reason}`) as-is, so server error
     strings are user-facing copy. The one exception: `401` with `Invalid API key` is replaced by "get a new key".
 18. **Ownership is enforced server-side only.** Members get `403` on others' pages; the extension's `mine` field is

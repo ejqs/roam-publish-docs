@@ -52,7 +52,7 @@ Feed readers fetch `feed.xml` without cookies or a session, so a feed can't chec
 therefore only ever list pages that are open to everyone and listed (public in the graph, or listed in the
 collection), and a graph or collection feed `404`s unless its front page is open too. Unlisted, password-protected,
 members-only and removed pages never appear. Once an item is in a feed, readers may keep a copy of its excerpt after
-the page is unpublished; the extension's "Make public" is the step that can put a page there.
+the page is unpublished; the extension's "Make listed" or "Make discoverable" is the step that can put a page there.
 
 ## Shared graphs
 
