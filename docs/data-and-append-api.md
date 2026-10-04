@@ -116,8 +116,9 @@ The owner chooses in the graph's settings, under **Roam change log**:
 - **What to log in Roam**: publishing (published, republished, unpublished, byline), who can read (access,
   passwords, encryption), where it's listed (unlisted, public, Discover, shown or hidden in the graph), collections,
   and tags. All are on by default. Moderation is always logged.
-- **Merge quick changes** (on by default): within one send, a setting changed several times is written once, with
-  its final value, in the entry where it last changed. If that value is what Roam's change log already showed for
+- **Merge quick changes** (on by default): changes made within 5 minutes of each other go out in one send, and
+  within it a setting changed several times is written once, with its final value, in the entry where it last
+  changed. If that value is what Roam's change log already showed for
   the setting, nothing is written for it. Events such as "Password changed" or "Republished" collapse to the last
   one but are never dropped.
 - **Group by day** (on by default): entries go under the day's `[[date]]` block, using the Append API's `nest-under`,
@@ -156,7 +157,8 @@ isn't, and are dropped after 7 days.
 
 A background worker sends queued entries:
 
-- **Batched per page.** It waits until a page has been quiet for 30 seconds (at most 3 minutes), then sends all of
+- **Batched per page.** It waits until a page has been quiet for 30 seconds (at most 3 minutes), or 5 minutes (at
+  most 15) when merging quick changes is on, then sends all of
   its entries oldest first, each dated when the event happened, after merging them (above). That's one call, or one
   per day when grouping by day and the entries span midnight.
 - **Rate-limited per graph.** At most one call per graph every 10 seconds. On a `429`, it backs off (honouring
