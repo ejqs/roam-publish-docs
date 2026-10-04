@@ -50,14 +50,13 @@ could claim the key first. `POST /api/ext/claim` now returns `410`.
 2. Extension pulls the tree with `roamAlphaAPI.data.async.pull`, sorts children by `:block/order`, inlines block
    refs (3 deep), attaches embeds (2 deep), and builds `{ rootUid, kind, title, tree }`.
 3. `contentHash = sha256(stableStringify({ kind, title, tree }))`.
-4. If the local cache already has that hash (and the same author name), it says "already published" without a
-   network call.
-5. Otherwise `POST /api/ext/publications` with the payload, the hash and the author name.
-6. Server validates with zod, **recomputes the hash and rejects mismatches**, checks ownership, then creates or
+4. `POST /api/ext/publications` with the payload, the hash and the author name. The extension doesn't skip this
+   when its cache already has the hash: the cache can be stale, and the server answers `unchanged` itself.
+5. Server validates with zod, **recomputes the hash and rejects mismatches**, checks ownership, then creates or
    updates. New pages start `unlisted`, with access copied from the graph's current default, and join default
    collections the publisher belongs to. The server also derives the page's tags (`#tag`, `Tags::`) and search
    text from the tree; the extension sends nothing extra for them, so the hash is unaffected.
-7. Server returns `created | updated | unchanged` with the URL. The extension caches it and copies the link. On
+6. Server returns `created | updated | unchanged` with the URL. The extension caches it and copies the link. On
    `created`+`unlisted` the toast offers **Make public**.
 
 ## After publishing

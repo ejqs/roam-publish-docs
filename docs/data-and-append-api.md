@@ -28,28 +28,33 @@ The extension only reads the graph through `roamAlphaAPI` in the browser, and on
 | --- | --- |
 | **Publish** or **status** on a page or block | The page or block and all its children: `uid`, text, heading, text alignment, view type (bullets, numbered, document), page title and order. |
 | ...that contains a block reference `((uid))` | The referenced block's text (or page title), up to 3 levels of references deep, wherever it is in the graph. Refs inside code, embeds and `[label](((uid)))` aliases are left as written. |
-| ...that contains an embed `{{embed: …}}` | The embedded block or page with its children, up to 2 embeds deep. Cycles stop. |
+| ...that contains an embed `{{embed: …}}` | The embedded block or page with its children, up to 2 embeds deep. Cycles stop. Every embed in a block (up to 20) is sent: the first as `embed`, the rest in order as `moreEmbeds`. |
 | **Publish** with the Roam Publish block on | The page's direct children and grandchildren, to find an existing status link block. |
 | Every 5 minutes while Roam is open | Whether each status link block it knows about still exists (a lookup by `uid`, no text). See [Confirming status link blocks](#confirming-status-link-blocks). |
 | **Publish current page** from the palette | The open page or block, and its page, to publish the whole page when you're zoomed in. |
 
 It doesn't read daily notes, other pages, attributes of other blocks, or anything else. Status link blocks and
 everything under them are left out of the tree at any depth (`isShortlinkBlock`), so they're never published or
-hashed.
+hashed. A block counts as one when its own text starts with one of the graph's status links, or when one of its
+children's does and one of its children is a recorded status link (or older "Changelog") block. A status link pasted
+under an ordinary block leaves out only the link, not the block it's under. The server applies the same rule
+(`withoutShortlinks`).
 
 ## What the extension sends
 
 Every request goes to the configured server (default `https://roam.pub`) with the API key in an `x-api-key` header.
+The extension refuses a Server URL that isn't `https://` (except `http://localhost` for development), so the key is
+never sent unencrypted, and gives up on a request after 60 seconds.
 No analytics, no third parties.
 
 | Request | When | Body |
 | --- | --- | --- |
 | `POST /api/ext/shortlinks` | First publish of a page, with the Roam Publish block on | `rootUid` |
-| `POST /api/ext/publications` | **Publish** / **Republish**, only if the content, author name or status link block changed | `rootUid`, `kind`, `title`, the serialized `tree`, `contentHash` (SHA-256 of `kind`, `title`, `tree`), `author`, `anchorUid` (the status link block's uid, if any), the browser's `timeZone` |
+| `POST /api/ext/publications` | **Publish** / **Republish** (the server answers `unchanged` when nothing changed) | `rootUid`, `kind`, `title`, the serialized `tree`, `contentHash` (SHA-256 of `kind`, `title`, `tree`), `author`, `anchorUid` (the status link block's uid, if any), the browser's `timeZone` |
 | `PATCH /api/ext/publications/{rootUid}` | **Make public** / **Make unlisted** | `visibility` |
-| `DELETE /api/ext/publications/{rootUid}` | **Unpublish** | none |
+| `DELETE /api/ext/publications/{rootUid}` | **Unpublish**, after you confirm it | none |
 | `GET /api/ext/publications` | **Sync**, **status**, or when the local cache is empty | none |
-| `POST /api/ext/changelog/confirm` | Every 5 minutes while Roam is open (first run 20 s after load) | `present` and `missing`: lists of `{ rootUid, anchorUid }` |
+| `POST /api/ext/changelog/confirm` | Every 5 minutes while Roam is open (first run 20 s after load), in batches of 2,000 | `present` and `missing`: lists of `{ rootUid, anchorUid }` |
 | `GET /api/ext/changelog` | Instead of the confirm call, while the graph has no token or the change log is paused | none |
 
 The tree contains block text as it appears in Roam, with block references replaced by their text. Images, video,
