@@ -51,7 +51,7 @@ No analytics, no third parties.
 | --- | --- | --- |
 | `POST /api/ext/shortlinks` | First publish of a page, with the Roam Publish block on | `rootUid` |
 | `POST /api/ext/publications` | **Publish** / **Republish** (the server answers `unchanged` when nothing changed) | `rootUid`, `kind`, `title`, the serialized `tree`, `contentHash` (SHA-256 of `kind`, `title`, `tree`), `author`, `anchorUid` (the status link block's uid, if any), the browser's `timeZone` |
-| `PATCH /api/ext/publications/{rootUid}` | **Make public** / **Make unlisted** | `visibility` |
+| `PATCH /api/ext/publications/{rootUid}` | **Make listed** / **Make discoverable** / **Make unlisted** | `listing` (`unlisted`, `listed` or `discover`; older extensions send `visibility`) |
 | `DELETE /api/ext/publications/{rootUid}` | **Unpublish**, after you confirm it | none |
 | `GET /api/ext/publications` | **Sync**, **status**, or when the local cache is empty | none |
 | `POST /api/ext/changelog/confirm` | Every 5 minutes while Roam is open (first run 20 s after load), in batches of 2,000 | `present` and `missing`: lists of `{ rootUid, anchorUid }` |
