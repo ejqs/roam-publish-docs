@@ -97,8 +97,10 @@ For the full read/send/write picture from a user's point of view, see
 2. Shortlink blocks and everything under them are left out of the tree before hashing, so they never count as
    content changes. The server drops them from the stored tree as well.
 3. Whenever something happens to the page (publish, republish, visibility, Discover, collections, access, unpublish,
-   moderation), the server appends a dated entry under the anchor with the graph's stored append-only token, after
-   the response (`after()`), never failing the request.
+   moderation), the server queues an entry, after the response (`after()`), never failing the request. The
+   background sender appends it under the anchor with the graph's stored append-only token, under the day's
+   `[[date]]` block (`nest-under`), after merging quick changes to one setting. The owner picks which kinds of change
+   go to Roam, and can turn merging and day blocks off.
 4. `/p/{id}` shows the graph's owner and members where the page lives, with links to copy, and its history.
    Signed-out visitors are sent to log in; anyone else signed in gets a 404, never the page itself.
 5. The extension's **Check change log** reads `GET /api/ext/changelog` (status and when Roam last accepted the

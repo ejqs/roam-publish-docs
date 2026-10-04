@@ -92,20 +92,36 @@ Roam** is off, the token is used for this write and not stored.
 
 ### 2. The change log
 
-If the token is kept, roam.pub appends a dated entry under a page's status link block whenever something happens to
-the page:
+If the token is kept, roam.pub appends an entry under a page's status link block whenever something happens to
+the page, grouped under one block per day:
 
 ```
 [[Roam Publish]]
   [Roam Publish Status](https://roam.pub/p/k3Xq9aZt)
-    [[October 2nd, 2026]] 14:03 Published as unlisted: https://roam.pub/…
-    [[October 3rd, 2026]] 09:12 Made public
+    [[October 2nd, 2026]]
+      14:03 Published as unlisted: https://roam.pub/…
+    [[October 3rd, 2026]]
+      09:12 Made public
+      09:40 Access in the graph: Password
 ```
 
 Events: published, republished, byline changed, made public or unlisted, access or password changes, added to or
 removed from a collection, listing or Discover changes, tags changed on the website, unpublished (from Roam or the website), and
-removed or restored by a moderator. Each entry is the date (as a daily note link), the time in the graph's time zone,
-and a short description, sometimes with a link. No page content.
+removed or restored by a moderator. Each entry is the time in the graph's time zone and a short description,
+sometimes with a link, under its date (a daily note link). No page content. Entries written before day blocks existed
+carry the date on each line, and stay that way.
+
+The owner chooses in the graph's settings, under **Roam change log**:
+
+- **What to log in Roam**: publishing (published, republished, unpublished, byline), who can read (access,
+  passwords, encryption), where it's listed (unlisted, public, Discover, shown or hidden in the graph), collections,
+  and tags. All are on by default. Moderation is always logged.
+- **Merge quick changes** (on by default): within one send, a setting changed several times is written once, with
+  its final value, in the entry where it last changed. If that value is what Roam's change log already showed for
+  the setting, nothing is written for it. Events such as "Password changed" or "Republished" collapse to the last
+  one but are never dropped.
+- **Group by day** (on by default): entries go under the day's `[[date]]` block, using the Append API's `nest-under`,
+  which reuses the block with exactly that text or creates it. Off puts the date on every line instead.
 
 Every event is also kept as the page's history on its status page (`/p/{id}`), which only the graph's owner and
 members can see. That history exists whether or not anything is written to Roam.
@@ -116,7 +132,8 @@ An entry is queued for Roam only if all of these hold when it happens:
 
 - the page has a status link block that roam.pub knows about (`anchorUid`), not reported missing;
 - the graph has a stored token that Roam hasn't rejected;
-- the owner hasn't paused the change log.
+- the owner hasn't paused the change log;
+- the owner hasn't left that kind of change out (moderation can't be left out).
 
 Otherwise it's kept as history on the website only and never sent later.
 
@@ -140,7 +157,8 @@ isn't, and are dropped after 7 days.
 A background worker sends queued entries:
 
 - **Batched per page.** It waits until a page has been quiet for 30 seconds (at most 3 minutes), then sends all of
-  its entries in one call, oldest first, each dated when the event happened.
+  its entries oldest first, each dated when the event happened, after merging them (above). That's one call, or one
+  per day when grouping by day and the entries span midnight.
 - **Rate-limited per graph.** At most one call per graph every 10 seconds. On a `429`, it backs off (honouring
   `Retry-After`, otherwise doubling from 1 minute up to 30).
 - **Never twice.** Entries are claimed atomically before sending. If a call fails in a way that may have been applied,
