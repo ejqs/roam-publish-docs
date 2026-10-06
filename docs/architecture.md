@@ -22,7 +22,8 @@ The split is deliberate: **the extension is a thin, dumb sender; the server owns
 - The extension only knows how to turn a Roam page or block into a tree, hash it, and send it. It knows about
   `public` / `unlisted`, and nothing else about who can read a page.
 - Access (open / password / members), collections, members, Discover, RSS feeds, bylines, moderation and every
-  setting live on the website. None of it is exposed to the extension API.
+  setting live on the website. The extension API exposes none of it, except adding a page to a collection, where
+  the server applies the collection's own defaults.
 
 This keeps the extension small, keeps the attack surface in Roam tiny, and means product changes ship
 by deploying the server, not by waiting for users to update a Roam Depot extension.
@@ -66,7 +67,10 @@ Reading (rendering, access gates, slug redirects, view counting, RSS feeds, tags
 collections, members, Discover, feeds, bulk changes) are website-only. Making a page **listed** (or **discoverable**) from the extension
 also puts it in its graph's RSS feed when the owner turned that feed on and the page is open to everyone. The extension's only management calls are
 **make listed / make discoverable / make unlisted** (`PATCH` with `listing`; every response carries `listing` and
-`discoverBlocked`, the reason it can't be Discoverable, so the extension never works out Discover rules itself) and **unpublish** (`DELETE`). See
+`discoverBlocked`, the reason it can't be Discoverable, so the extension never works out Discover rules itself) **add to collection** (`GET`/`POST /api/ext/publications/:rootUid/collections`: the server lists the holder's
+collections with how a page starts out in each, adds it with that collection's defaults, and takes the page out of its
+graph when the collection is locked and the graph place isn't, so the graph link can't get around the lock) and
+**unpublish** (`DELETE`). See
 [where-to-look.md](where-to-look.md) for the server docs on those.
 
 ### View counts
