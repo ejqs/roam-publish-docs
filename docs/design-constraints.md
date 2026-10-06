@@ -34,7 +34,9 @@ Rules internal to one repo (e.g. how access defaults or Discover work) live in t
 ## Identity
 
 12. **A publication is `(graph of the key, rootUid)`.** The extension's local cache is keyed by `rootUid`; the
-    server's unique index is `(graphId, rootUid)`. The graph comes from the key, never from the payload.
+    server's unique index is `(graphId, rootUid)`. The graph comes from the key, never from the payload. The
+    extension also names the Roam graph it's in (`x-roam-graph`); the server answers `409` when that isn't the key's
+    graph, so a key pasted into another graph can't publish there. Requests without it (older builds) aren't checked.
 13. **URLs come from the server.** The extension never builds a URL; it stores whatever `url` the server returns
     (graph URL, or the first collection URL when the page isn't in the graph).
 
@@ -56,8 +58,8 @@ Rules internal to one repo (e.g. how access defaults or Discover work) live in t
 
 ## Transport
 
-20. Header `x-api-key: rp_…`; one key per person per graph.
-21. CORS: `https://roamresearch.com` (+ `localhost` outside production); headers `content-type, x-api-key`;
+20. Headers `x-api-key: rp_…` (one key per person per graph) and `x-roam-graph: <graph name>`.
+21. CORS: `https://roamresearch.com` (+ `localhost` outside production); headers `content-type, x-api-key, x-roam-graph`;
     methods `GET, POST, PATCH, DELETE, OPTIONS`.
 22. Payload ≤1 MB (bytes); block strings ≤100k chars; titles ≤1000; uids ≤64; trees ≤200 levels deep, counting
     children and embeds. The extension doesn't pre-check these.

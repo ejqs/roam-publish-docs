@@ -42,7 +42,8 @@ under an ordinary block leaves out only the link, not the block it's under. The 
 
 ## What the extension sends
 
-Every request goes to the configured server (default `https://roam.pub`) with the API key in an `x-api-key` header.
+Every request goes to the configured server (default `https://roam.pub`) with the API key in an `x-api-key` header and
+the Roam graph's name in `x-roam-graph`, so roam.pub can refuse a key made for another graph.
 The extension refuses a Server URL that isn't `https://` (except `http://localhost` for development), so the key is
 never sent unencrypted, and gives up on a request after 60 seconds.
 No analytics, no third parties.
