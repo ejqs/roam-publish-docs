@@ -5,21 +5,29 @@ what spans both — the boundary, the shared invariants, and how to change them 
 
 | Repo | Role | Its own docs |
 | --- | --- | --- |
-| [`ejqs/roam-publish`](https://github.com/ejqs/roam-publish) | Roam Depot extension. Reads a page or block, serializes, hashes, sends. | [README](https://github.com/ejqs/roam-publish#readme) (setup, usage, what gets published, safety) |
-| [`ejqs/roam-publish-web`](https://github.com/ejqs/roam-publish-web) | Server + website at [roam.pub](https://roam.pub). Verifies graphs, issues keys, stores, renders, owns all access settings. | [README](https://github.com/ejqs/roam-publish-web#readme), [`docs/api-contract.md`](https://github.com/ejqs/roam-publish-web/blob/main/docs/api-contract.md) |
+| [`ejqs/roam-publish`](https://github.com/ejqs/roam-publish) | Roam Depot extension. Reads a page or block, serializes, hashes, encrypts Password pages (0.2.0), sends. | [README](https://github.com/ejqs/roam-publish#readme) (setup, usage, what gets published, safety) |
+| [`ejqs/roam-publish-web`](https://github.com/ejqs/roam-publish-web) | Server + website at [roam.pub](https://roam.pub). Verifies graphs, issues keys, stores, renders, owns every Visibility and encryption setting. | [README](https://github.com/ejqs/roam-publish-web#readme), [`docs/api-contract.md`](https://github.com/ejqs/roam-publish-web/blob/main/docs/api-contract.md) |
 
 ## Pages
 
 1. [Architecture](docs/architecture.md) — who does what, and the flows that cross the boundary.
 2. [Shared invariants](docs/design-constraints.md) — rules both repos must keep in lockstep.
-3. [Trust boundary](docs/security.md) — what crosses between Roam, the extension and the server.
+3. [Trust boundary](docs/security.md) — what crosses between Roam, the extension and the server, including
+   encrypted pages.
 4. [Data flow and the Append API](docs/data-and-append-api.md) — what the extension reads, sends and writes, and how
    roam.pub uses Roam's Append API.
-5. [Shipping changes](docs/shipping-changes.md) — changing the contract without breaking installed extensions.
+5. [Shipping changes](docs/shipping-changes.md) — changing the contract without breaking installed extensions,
+   versions, and the upcoming-changes process.
 6. [Open questions](docs/open-questions.md) — unverified assumptions that involve both sides.
 7. [Where things are documented](docs/where-to-look.md) — pointers into each repo for everything else.
 
 `inbox/` holds raw notes not yet folded in.
+
+## Versions covered
+
+Checked against roam.pub **0.18.0** (live) and extension **0.1.1** (live in Roam Depot), with **0.2.0** on
+`roam-publish` `develop`. Anything that needs extension 0.2.0 is marked as coming soon; what 0.1.x does in the
+meantime is in [Architecture → Extension 0.1.x today](docs/architecture.md#extension-01x-today).
 
 ## Source of truth
 

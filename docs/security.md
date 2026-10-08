@@ -8,9 +8,11 @@ the extension README's *Safety* section, and the server's moderation/auth code.
 
 | From → To | What | When |
 | --- | --- | --- |
-| Roam → extension | The selected tree, referenced block text, embedded trees | Only on a publish action |
-| Extension → server | `PublishPayload` + hash + author, API key | Only on a user action |
-| Server → extension | Status, URL, hash, visibility, publication list, error strings | In response |
+| Roam → extension | The selected tree, referenced block text, embedded trees, which blocks are collapsed | Only on a publish action |
+| Extension → server | `PublishPayload` + hash + author, API key, the extension's version | Only on a user action |
+| Server → extension | A seal plan: whether the page is encrypted, its id, and each place's password **public** key | Before each publish, from extension 0.2.0 |
+| Extension → server | For an encrypted page, instead of the tree: the cipher, the content key sealed to each public key, the uids of collapsed blocks and a keyed hash | On publish, from extension 0.2.0 (coming soon) |
+| Server → extension | Status, URL, hash, listing, `encrypted`, collapsed block uids, publication list, error strings, the oldest extension version it works with | In response |
 | Website → Roam Append API | One block on today's daily note, using a token the user pasted | At graph verification, and when a token is added in graph settings |
 | Server → Roam Append API | Change log entries (date, event, roam.pub URLs) under a page's shortlink block | After publish/website changes, when the graph has a stored token and the page has a shortlink block |
 | Extension → server | Uids of the Changelog blocks it can and can't find (no text) | Every 5 minutes while Roam is open, when shortlink blocks are on |
@@ -39,6 +41,32 @@ the extension README's *Safety* section, and the server's moderation/auth code.
 - **Roam Publish API key** (`rp_…`): issued on the website, pasted into the **extension**. Lets the server act for
   that person on that one graph. Gives **no** access to the Roam graph. Stored hashed server-side; shown once.
 
+## Encrypted pages
+
+Encryption keeps a page's text from anyone who gets a copy of the database, and, when the page is encrypted in Roam
+(v2), from roam.pub itself. The full rules and limits are on roam.pub at `/privacy/encryption` and
+`/privacy/encryption/versions`; this is what each side holds.
+
+| | Extension | Server | Reader's browser |
+| --- | --- | --- | --- |
+| Page text | Always (it's the graph) | v1 only, while encrypting it (publish, dashboard encrypt or decrypt) | After unlocking |
+| Password | Never | Typed on the dashboard (set, change, encrypt, decrypt, add somewhere new) | Typed to unlock; only a proof derived from it is sent |
+| Password's private key | Never | Only wrapped under scrypt(password) | Unwrapped after unlocking, kept non-extractable in IndexedDB for 30 days |
+| Public keys | Per publish, from the seal plan | Stored | Not needed |
+| Content key | Made fresh per publish, sealed, then dropped | Sealed copies only (v1: briefly in the clear while encrypting) | Unsealed to read |
+| Hash key (`hash-key`) | In the graph's extension settings | Never; it stores only the keyed hash | Never |
+
+- **v2 leaves the server out of the text entirely**, but readers still decrypt with JavaScript served by roam.pub,
+  so whoever controls the running server could change that code to capture passwords as they're typed. Publishing
+  from the extension doesn't have that weakness.
+- **Titles stay readable**, and so do which blocks start collapsed (`folded` is plain uids), view counts and
+  unlock counts.
+- **The keyed hash** lets the extension tell whether an encrypted page changed without the stored hash confirming a
+  guess at its text. The key lives in the graph's extension settings, so it shares the open question about whether
+  collaborators can read those ([open-questions.md](open-questions.md)).
+- **A forgotten password** can't be recovered by anyone; pages it opened show Needs republish until they're
+  republished from Roam, which still has the text.
+
 ## Why setup doesn't go through the graph
 
 An earlier design had the server write a claim code to the daily note and the extension read it to fetch a key.
@@ -49,8 +77,8 @@ for old extension builds.
 ## RSS feeds
 
 Feed readers fetch `feed.xml` without cookies or a session, so a feed can't check a password or membership. Feeds
-therefore only ever list pages that are open to everyone and listed (public in the graph, or listed in the
-collection), and a graph or collection feed `404`s unless its front page is open too. Unlisted, password-protected,
+therefore only ever list pages whose Visibility is Public or Discover (open to everyone and listed, in the graph
+or in the collection), and a graph or collection feed `404`s unless its front page is open too. Unlisted, password-protected,
 members-only and removed pages never appear. Once an item is in a feed, readers may keep a copy of its excerpt after
 the page is unpublished; the extension's "Make listed" or "Make discoverable" is the step that can put a page there.
 
