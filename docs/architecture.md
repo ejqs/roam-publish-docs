@@ -29,6 +29,23 @@ The split is deliberate: **the extension is a thin, dumb sender; the server owns
 This keeps the extension small, keeps the attack surface in Roam tiny, and means product changes ship
 by deploying the server, not by waiting for users to update a Roam Depot extension.
 
+## Extension 0.1.x today
+
+Roam Depot serves extension 0.1.1 until 0.2.0 is pinned there, and roam.pub 0.18.0 keeps every 0.1.x path working
+(`EXT_MIN_VERSION` is `0.0.0`, so nobody is asked to update). With 0.1.x:
+
+- **Publishing** sends the plain tree. A Password page in a place that encrypts is encrypted by roam.pub on arrival
+  (v1); nothing is encrypted in Roam, and no seal plan is asked for.
+- **Collapsed blocks** aren't sent, so published pages start fully open, and there are no fold prompts.
+- **No version header** is sent: `/admin/extension` counts these installs as "older than 0.2.0", and they never see
+  the update notice. If a later website ever needs more than 0.1.x, they get an error message instead, which is why
+  such a release waits until everyone active has updated ([shipping-changes.md](shipping-changes.md)).
+- **Make listed** on a page that's only in collections is refused with a message saying each collection sets its
+  own listing (website 0.15.0); 0.1.x still shows the button.
+- **Add to collection** works for encrypted pages too, but 0.1.x doesn't republish afterwards, so the page shows
+  Needs republish in that collection until it's republished from Roam.
+- The toasts say Listed and Discoverable; the website says Public and Discover for the same thing.
+
 ## Flow 1: Connect a graph (website only)
 
 1. Sign up on roam.pub (email + password, email must be verified).

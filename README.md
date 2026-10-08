@@ -25,9 +25,9 @@ what spans both — the boundary, the shared invariants, and how to change them 
 
 ## Versions covered
 
-Checked against roam.pub **0.18.0** (`roam-publish-web` `develop`, in review for `main`) and extension **0.2.0**
-(`roam-publish` `develop`, not yet in Roam Depot, where 0.1.1 is live). Anything that needs extension 0.2.0 is
-marked as coming soon.
+Checked against roam.pub **0.18.0** (live) and extension **0.1.1** (live in Roam Depot), with **0.2.0** on
+`roam-publish` `develop`. Anything that needs extension 0.2.0 is marked as coming soon; what 0.1.x does in the
+meantime is in [Architecture → Extension 0.1.x today](docs/architecture.md#extension-01x-today).
 
 ## Source of truth
 
