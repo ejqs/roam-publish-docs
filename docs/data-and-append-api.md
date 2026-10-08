@@ -6,7 +6,7 @@ roam.pub uses Roam's Append API. Written for anyone checking what Roam Publish d
 The short version is in the extension's README under
 [Privacy and safety](https://github.com/ejqs/roam-publish#privacy-and-safety). Code is the source of truth: the
 extension's `src/publish.ts`, `src/serialize.ts`, `src/index.ts`, and the server's `src/lib/changelog.ts`,
-`src/lib/roam-append.ts` and `src/app/(app)/onboarding/actions.ts`.
+`src/lib/roam-append.ts` and `src/server/actions/onboarding.ts`.
 
 ## Two credentials
 
@@ -26,7 +26,7 @@ The extension only reads the graph through `roamAlphaAPI` in the browser, and on
 
 | When | What it reads |
 | --- | --- |
-| **Publish** or **status** on a page or block | The page or block and all its children: `uid`, text, heading, text alignment, view type (bullets, numbered, document), page title and order. |
+| **Publish** or **status** on a page or block | The page or block and all its children: `uid`, text, heading, text alignment, view type (bullets, numbered, document), page title and order, and (from 0.2.0) whether each block is collapsed. |
 | ...that contains a block reference `((uid))` | The referenced block's text (or page title), up to 3 levels of references deep, wherever it is in the graph. Refs inside code, embeds and `[label](((uid)))` aliases are left as written. |
 | ...that contains an embed `{{embed: …}}` | The embedded block or page with its children, up to 2 embeds deep. Cycles stop. Every embed in a block (up to 20) is sent: the first as `embed`, the rest in order as `moreEmbeds`. |
 | **Publish** with the Roam Publish block on | The page's direct children and grandchildren, to find an existing status link block. |
@@ -42,8 +42,10 @@ under an ordinary block leaves out only the link, not the block it's under. The 
 
 ## What the extension sends
 
-Every request goes to the configured server (default `https://roam.pub`) with the API key in an `x-api-key` header and
-the Roam graph's name in `x-roam-graph`, so roam.pub can refuse a key made for another graph.
+Every request goes to the configured server (default `https://roam.pub`) with the API key in an `x-api-key` header,
+the Roam graph's name in `x-roam-graph`, so roam.pub can refuse a key made for another graph, and from 0.2.0 the
+extension's version in `x-roam-publish-version`, so roam.pub knows which versions are still in use
+([shipping-changes.md](shipping-changes.md)).
 The extension refuses a Server URL that isn't `https://` (except `http://localhost` for development), so the key is
 never sent unencrypted, and gives up on a request after 60 seconds.
 No analytics, no third parties.
@@ -51,14 +53,18 @@ No analytics, no third parties.
 | Request | When | Body |
 | --- | --- | --- |
 | `POST /api/ext/shortlinks` | First publish of a page, with the Roam Publish block on | `rootUid` |
-| `POST /api/ext/publications` | **Publish** / **Republish** (the server answers `unchanged` when nothing changed) | `rootUid`, `kind`, `title`, the serialized `tree`, `contentHash` (SHA-256 of `kind`, `title`, `tree`), `author`, `anchorUid` (the status link block's uid, if any), the browser's `timeZone` |
-| `PATCH /api/ext/publications/{rootUid}` | **Make listed** / **Make discoverable** / **Make unlisted** | `listing` (`unlisted`, `listed` or `discover`; older extensions send `visibility`) |
+| `GET /api/ext/publications/{rootUid}/seal` | Before every publish, from 0.2.0 | none. The answer says whether the page is encrypted and gives its passwords' public keys |
+| `POST /api/ext/publications` | **Publish** / **Republish** (the server answers `unchanged` when nothing changed) | `rootUid`, `kind`, `title`, the serialized `tree`, `contentHash` (SHA-256 of `kind`, `title`, `tree`), `author`, `anchorUid` (the status link block's uid, if any), the browser's `timeZone`. For a page encrypted in Roam (0.2.0, coming soon), `sealed` (the encrypted tree and its sealed keys), `folded` (collapsed block uids) and a keyed `contentHash` replace `tree` and the plain hash, so no page text is sent |
+| `PATCH /api/ext/publications/{rootUid}` | **Make listed** / **Make discoverable** / **Make unlisted** (the website calls these Public, Discover and Unlisted) | `listing` (`unlisted`, `listed` or `discover`; older extensions send `visibility`) |
+| `GET` / `POST /api/ext/publications/{rootUid}/collections` | **Add to collection…** | `collectionId` on `POST`. An encrypted page is republished right after, from 0.2.0 |
 | `DELETE /api/ext/publications/{rootUid}` | **Unpublish**, after you confirm it | none |
 | `GET /api/ext/publications` | **Sync**, **status**, or when the local cache is empty | none |
 | `POST /api/ext/changelog/confirm` | Every 5 minutes while Roam is open (first run 20 s after load), in batches of 2,000 | `present` and `missing`: lists of `{ rootUid, anchorUid }` |
 | `GET /api/ext/changelog` | Instead of the confirm call, while the graph has no token or the change log is paused | none |
 
-The tree contains block text as it appears in Roam, with block references replaced by their text. Images, video,
+The tree contains block text as it appears in Roam, with block references replaced by their text. A Password page
+published from 0.2.0 is encrypted in Roam first, so roam.pub gets only ciphertext; see
+[Architecture → Flow 4](architecture.md#flow-4-encrypted-pages). Images, video,
 audio and PDFs are sent as the URLs in the text; the files themselves aren't. The wire format is in
 [`api-contract.md`](https://github.com/ejqs/roam-publish-web/blob/main/docs/api-contract.md).
 
@@ -68,7 +74,7 @@ audio and PDFs are sent as the URLs in the text; the files themselves aren't. Th
 | --- | --- | --- |
 | The published page, first or last child | The Roam Publish block: `{tag}` with `[{text}]({server}/p/{id})` under it | On publish: for pages when **Add Roam Publish block when publishing pages** is on, for blocks when **Add Roam Publish block when publishing blocks** is on. |
 | The same blocks | Updated tag or link text | On the next publish after you change those settings |
-| Roam's extension settings for the graph | API key, author name, Roam Publish block settings, and a cache of what's published (hash, URLs, title, visibility, status link uid) | When you change a setting or publish |
+| Roam's extension settings for the graph | API key, author name, Roam Publish block settings, a cache of what's published (hash, URLs, title, listing, whether it's encrypted, collapsed blocks, status link uid), and from 0.2.0 the `hash-key` for encrypted pages' keyed hashes | When you change a setting or publish |
 | Your clipboard | The published page's URL | On publish |
 
 The extension writes nothing else to the graph. The change log entries under the status link are written by

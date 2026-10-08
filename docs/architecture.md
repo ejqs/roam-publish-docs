@@ -19,11 +19,12 @@
 
 The split is deliberate: **the extension is a thin, dumb sender; the server owns everything else.**
 
-- The extension only knows how to turn a Roam page or block into a tree, hash it, and send it. It knows about
-  `public` / `unlisted`, and nothing else about who can read a page.
-- Access (open / password / members), collections, members, Discover, RSS feeds, bylines, moderation and every
-  setting live on the website. The extension API exposes none of it, except adding a page to a collection, where
-  the server applies the collection's own defaults.
+- The extension only knows how to turn a Roam page or block into a tree, hash it, and send it (from 0.2.0,
+  encrypted first when the server says the page is a Password page; see [Flow 4](#flow-4-encrypted-pages)). Of who
+  can read a page it knows only where it's listed (`unlisted`, `listed`, `discover`) and whether it's encrypted.
+- Each page's **Visibility** in each place it's shown (Discover, Public, Unlisted, Password, Members), passwords,
+  collections, members, RSS feeds, bylines, moderation and every setting live on the website. The extension API
+  exposes none of it, except adding a page to a collection, where the server applies the collection's own defaults.
 
 This keeps the extension small, keeps the attack surface in Roam tiny, and means product changes ship
 by deploying the server, not by waiting for users to update a Roam Depot extension.
@@ -49,29 +50,90 @@ could claim the key first. `POST /api/ext/claim` now returns `410`.
 
 1. User right-clicks a block bullet or page title (or uses the command palette).
 2. Extension pulls the tree with `roamAlphaAPI.data.async.pull`, sorts children by `:block/order`, inlines block
-   refs (3 deep), attaches embeds (2 deep), and builds `{ rootUid, kind, title, tree }`.
+   refs (3 deep), attaches embeds (2 deep), and builds `{ rootUid, kind, title, tree }`. From 0.2.0 it also marks
+   blocks collapsed in Roam (`collapsed: true`), after asking the first time whether to publish them collapsed or
+   expanded (see [Collapsed blocks](#collapsed-blocks)).
 3. `contentHash = sha256(stableStringify({ kind, title, tree }))`.
-4. `POST /api/ext/publications` with the payload, the hash and the author name. The extension doesn't skip this
+4. From 0.2.0 (coming soon), the extension asks `GET /api/ext/publications/:rootUid/seal` whether the page is (or, new, will be)
+   encrypted. If so, it encrypts the tree in Roam and sends the cipher instead ([Flow 4](#flow-4-encrypted-pages)).
+5. `POST /api/ext/publications` with the payload, the hash and the author name. The extension doesn't skip this
    when its cache already has the hash: the cache can be stale, and the server answers `unchanged` itself.
-5. Server validates with zod, **recomputes the hash and rejects mismatches**, checks ownership, then creates or
-   updates. New pages start `unlisted`, with access copied from the graph's current default, and join default
-   collections the publisher belongs to. The server also derives the page's tags (`#tag`, `Tags::`) and search
-   text from the tree; the extension sends nothing extra for them, so the hash is unaffected.
-6. Server returns `created | updated | unchanged` with the URL. The extension caches it and copies the link. On
-   `created`+`unlisted` the toast offers **Make listed**, and **Make discoverable** when the server's
+6. Server validates with zod, **recomputes the hash and rejects mismatches** (it can't for an encrypted payload,
+   whose hash is keyed), checks ownership, then creates or updates. New pages start **Unlisted** in the graph,
+   with access copied from the graph's current default, and join default collections the publisher belongs to
+   (leaving the graph when one of those collections takes its pages out of their graph). A new page is encrypted
+   when every place it lands in is Password and its graph or a collection asks to encrypt new Password pages. The
+   server also derives the page's tags (`#tag`, `Tags::`), search text and collapsed blocks (`folded`) from the
+   tree; the extension sends nothing extra for them, so the hash is unaffected.
+7. Server returns `created | updated | unchanged` with the URL and `encrypted`. The extension caches it and copies
+   the link. On `created`+`unlisted` the toast offers **Make listed**, and **Make discoverable** when the server's
    `discoverBlocked` is null.
 
 ## After publishing
 
-Reading (rendering, access gates, slug redirects, view counting, RSS feeds, tags and search) and managing (listing, access, passwords,
-collections, members, Discover, feeds, bulk changes) are website-only. Making a page **listed** (or **discoverable**) from the extension
-also puts it in its graph's RSS feed when the owner turned that feed on and the page is open to everyone. The extension's only management calls are
-**make listed / make discoverable / make unlisted** (`PATCH` with `listing`; every response carries `listing` and
-`discoverBlocked`, the reason it can't be Discoverable, so the extension never works out Discover rules itself) **add to collection** (`GET`/`POST /api/ext/publications/:rootUid/collections`: the server lists the holder's
-collections with how a page starts out in each, adds it with that collection's defaults, and takes the page out of its
-graph when the collection is locked and the graph place isn't, so the graph link can't get around the lock) and
-**unpublish** (`DELETE`). See
-[where-to-look.md](where-to-look.md) for the server docs on those.
+Reading (rendering, access gates, unlocking and decrypting, slug redirects, view counting, RSS feeds, tags and
+search) and managing (Visibility, passwords, encryption, collections, members, Discover, feeds, front pages, bulk
+changes) are website-only.
+
+### Visibility, and the words each side uses
+
+Since website 0.17.0, every place a page is shown (its graph, each collection) has one **Visibility**, from most
+open to most closed: **Discover**, **Public**, **Unlisted**, **Password**, **Members**. Underneath, each place still
+stores two columns, `access` (open, password, members) and `listing` (unlisted, listed, discover), and the
+extension API speaks those:
+
+| Website (Visibility) | `access` | `listing` | Extension 0.1.x / 0.2.0 calls it |
+| --- | --- | --- | --- |
+| Discover | open | discover | Discoverable |
+| Public (was "Listed") | open | listed | Listed |
+| Unlisted | open | unlisted | Unlisted |
+| Password | password | `listed` shows its title on the front page, `unlisted` doesn't | no Make buttons; `encrypted` says if it's encrypted |
+| Members | members | the same | no Make buttons |
+
+The extension still says Listed and Discoverable; moving its toasts to the ladder's words is a later extension
+release. Display settings (bylines, view counts, breadcrumbs, the RSS feed, where new pages go) moved from the
+Sharing tab to the graph's Settings tab in 0.17.0, which changes nothing on the wire.
+
+`[[links]]` to other pages are resolved by the server when it renders, never by the extension (which sends them
+as written): a link becomes clickable only when the page it names is published in the same graph or collection and
+listed there, which means **Public** or **Discover**, or Password and Members pages that show their title on the
+front page. Links to **Unlisted** pages show as plain text, since a link would hand their address to every reader
+(website 0.16.2; unlisted-to-unlisted links were tried and reverted).
+
+### What the extension can change
+
+Making a page **listed** (or **discoverable**) from the extension also puts it in its graph's RSS feed when the
+owner turned that feed on and the page is open to everyone. The extension's only management calls are:
+
+- **Make listed / make discoverable / make unlisted** (`PATCH` with `listing`). Every response carries `listing`
+  and `discoverBlocked`, the reason it can't be Discoverable, so the extension never works out Discover rules
+  itself. A page shown only in collections has no graph listing to change: the server answers `409` (website
+  0.15.0), and extension 0.2.0 stops offering the buttons for it.
+- **Add to collection** (`GET`/`POST /api/ext/publications/:rootUid/collections`). The server lists the holder's
+  collections with how a page starts out in each, adds it with that collection's defaults, and takes the page out
+  of its graph when the collection asks for that or is locked while the graph place isn't, so the graph link can't
+  get around the lock. An encrypted page goes in as Password; the list marks collections it can't go in
+  (`blocked`: no password, or one too old or short to encrypt), and the response says `needsRepublish`, which
+  extension 0.2.0 answers by republishing at once so the page opens there (website 0.16.0).
+- **Unpublish** (`DELETE`).
+
+See [where-to-look.md](where-to-look.md) for the server docs on those.
+
+### Collapsed blocks
+
+Published pages fold like Roam (website 0.12.0 to 0.16.1): readers collapse blocks from the caret or the thread
+lines, zoom into any block from its bullet or number (the block's uid goes in the address), and get a heading
+outline. Code blocks get a language label and copy button, and Mermaid blocks are drawn (0.14.0). All of that is
+rendering on the website; the only part that crosses the boundary is which blocks **start** collapsed:
+
+- Extension 0.2.0 (coming soon) sends `collapsed: true` on blocks with children that are collapsed in Roam (omitted otherwise,
+  so older trees hash the same). The server stores the uids as `publication.folded` and returns them as `folded`
+  in the publication list.
+- Because `collapsed` is in the hash, folding a block in Roam makes the page differ. The extension compares the
+  cache's `folded` with Roam's: when only folds changed it offers **Sync open/collapsed blocks**, otherwise
+  **Republish as is** or **Republish, keep open/collapsed** (re-applies the published folds to the new tree before
+  hashing). `folded` comes from the server, so this works from any computer.
+- Older extensions never send `collapsed`, so their pages start fully open.
 
 ### View counts
 
@@ -122,3 +184,45 @@ background, batched per page, at most one Append API call per graph every 10s.
 
 The Append API can only append (always last, no edit, move or delete), which is why the extension places the
 anchor block and the server only ever appends under it.
+
+## Flow 4: Encrypted pages
+
+A page can be encrypted when **every** place it's shown is Password, with a password of at least 10 characters
+there. Encryption is turned on per page (Encrypt with password in Manage), for new pages (Encrypt new password
+pages on a graph or collection), or for pages already there (Encrypt existing pages). A Password page that isn't
+encrypted is still only gated by the password check. The envelope is the same in both versions: the tree is
+encrypted with AES-256-GCM under a fresh content key, bound to the page's id (`tree:{publicationId}`), and the
+content key is sealed to each place's password with X25519 + HKDF-SHA256. Each password's X25519 private key is
+stored wrapped under scrypt(password), so publishing only ever needs public keys.
+
+Who does the encrypting is what the **encryption version** says, shown on each encrypted page's badge and
+explained at `/privacy/encryption/versions`:
+
+| | v1 · Encrypted | v2 · End-to-end encrypted |
+| --- | --- | --- |
+| Since | website 0.3.0 | website 0.18.0 + extension 0.2.0 (**coming soon**: 0.2.0 isn't in Roam Depot yet) |
+| Who encrypts | roam.pub, on arrival (`sealNewContent`) | The extension, in Roam (`src/seal.ts`) |
+| roam.pub sees the text | When publishing, and when you encrypt or decrypt on the dashboard | Never |
+| Stored `contentHash` | `sealHash` of the plain hash, made by the server | `k1.` + HMAC of the plain hash under a key in the graph's extension settings |
+| Made by | Extensions before 0.2.0, Roam without X25519, the dashboard's encrypt switches | Publishing or republishing a Password-everywhere page from 0.2.0 |
+
+Either way, **readers' browsers decrypt** (website 0.16.3): the server sends the page still encrypted, unlocking
+sends a proof derived from the password instead of the password, and the unwrapped key stays in the browser
+(IndexedDB, 30 days). The extension has no part in reading.
+
+The v2 publish, from extension 0.2.0:
+
+1. `GET /api/ext/publications/:rootUid/seal` → `{ encrypt: false }`, or `{ encrypt: true, publicationId, locks }`:
+   the page's id (a fresh one for a new page) and every place's password as `{ scope, id, publicKey }`. A server
+   without the route answers `404`, and the extension publishes as before.
+2. If it says encrypt and Roam's WebCrypto has X25519 (`canSeal`), the extension encrypts the tree and seals the
+   content key to every lock with a public key. Otherwise it sends the plain tree and the server makes it v1.
+3. `POST /api/ext/publications` with `sealed: { publicationId, cipher, keys }`, `folded`, and a keyed `contentHash`
+   instead of `tree` and the plain hash. Shortlink blocks were left out in Roam.
+4. The server checks the seal against a fresh plan. If a place or password changed in between, it answers `409`
+   with `reseal: true`, and the extension asks for a new plan and tries once more.
+5. The page is stored as v2 with `encryptedBy: "extension {version}"`, no search text or tags. A lock without a
+   key pair, or one whose password was reset, leaves it `needsRepublish`.
+
+A v1 page becomes v2 the next time it's republished from extension 0.2.0. Website 1.0.0 will stop accepting plain
+trees for encrypted pages, announced at `/updates/upcoming` ([shipping-changes.md](shipping-changes.md)).
