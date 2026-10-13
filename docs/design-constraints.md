@@ -75,8 +75,8 @@ Rules internal to one repo (e.g. how access defaults or Discover work) live in t
     couldn't read it); methods `GET, POST, PATCH, DELETE, OPTIONS`.
 22. Payload ≤1 MB (bytes); block strings ≤100k chars; titles ≤1000; uids ≤64; trees ≤200 levels deep, counting
     children and embeds. The extension doesn't pre-check these.
-23. Default server URL is baked in at build time (`ROAM_PUBLISH_SERVER`, default `https://roam.pub`) and
-    overridable in settings.
+23. The server URL is baked in at build time (`ROAM_PUBLISH_SERVER`, default `https://roam.pub`). Since 0.2.0
+    there's no setting for it; a development build sets the variable.
 
 ## Encryption in Roam (extension 0.2.0+, website 0.18.0+)
 

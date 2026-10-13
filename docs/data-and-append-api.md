@@ -42,11 +42,11 @@ under an ordinary block leaves out only the link, not the block it's under. The 
 
 ## What the extension sends
 
-Every request goes to the configured server (default `https://roam.pub`) with the API key in an `x-api-key` header,
+Every request goes to the server set when the extension is built (`https://roam.pub`) with the API key in an `x-api-key` header,
 the Roam graph's name in `x-roam-graph`, so roam.pub can refuse a key made for another graph, and from 0.2.0 the
 extension's version in `x-roam-publish-version`, so roam.pub knows which versions are still in use
 ([shipping-changes.md](shipping-changes.md)).
-The extension refuses a Server URL that isn't `https://` (except `http://localhost` for development), so the key is
+The extension refuses a server that isn't `https://` (except `http://localhost` for development), so the key is
 never sent unencrypted, and gives up on a request after 60 seconds.
 No analytics, no third parties.
 
@@ -72,8 +72,8 @@ audio and PDFs are sent as the URLs in the text; the files themselves aren't. Th
 
 | Where | What | When |
 | --- | --- | --- |
-| The published page, first or last child | The Roam Publish block: `{tag}` with `[{text}]({server}/p/{id})` under it | On publish: for pages when **Add Roam Publish block when publishing pages** is on, for blocks when **Add Roam Publish block when publishing blocks** is on. |
-| The same blocks | Updated tag or link text | On the next publish after you change those settings |
+| The published page, first or last child | The Roam Publish block: `{tag}` with `[Roam Publish Status]({server}/p/{id})` under it | On publish: for pages when **Roam Publish block** is Pages or Pages and blocks, for blocks when it's Pages and blocks or Blocks only. |
+| The same blocks | Updated tag, or the standard link text where an earlier version wrote other text | On the next publish after the tag changes |
 | Roam's extension settings for the graph | API key, author name, Roam Publish block settings, a cache of what's published (hash, URLs, title, listing, whether it's encrypted, collapsed blocks, status link uid), and from 0.2.0 the `hash-key` for encrypted pages' keyed hashes | When you change a setting or publish |
 | Your clipboard | The published page's URL | On publish |
 
@@ -188,8 +188,7 @@ A background worker sends queued entries:
 
 | Setting | Effect on reads, sends and writes |
 | --- | --- |
-| **Add Roam Publish block when publishing pages** off | The extension doesn't write a Roam Publish block on pages and, for pages, doesn't call `/api/ext/shortlinks`, sends no `anchorUid` and leaves them out of the 5-minute confirmation (which doesn't run at all when the blocks setting is off too). roam.pub still gives the page a status link on publish and keeps its history on the website, but writes nothing to Roam for new pages. Pages that already have a status link block from before keep it; their new entries wait for a confirmation that doesn't come, and are dropped after 7 days unless the setting is turned back on. |
-| **Add Roam Publish block when publishing blocks** off (default) | Published blocks (as opposed to pages) get no Roam Publish block, so nothing is written under them. The two settings are independent. |
+| **Roam Publish block** without pages (Blocks only or Off) | The extension doesn't write a Roam Publish block on pages and, for pages, doesn't call `/api/ext/shortlinks`, sends no `anchorUid` and leaves them out of the 5-minute confirmation (which doesn't run at all when it's Off). roam.pub still gives the page a status link on publish and keeps its history on the website, but writes nothing to Roam for new pages. Pages that already have a status link block from before keep it; their new entries wait for a confirmation that doesn't come, and are dropped after 7 days unless pages are turned back on. |
+| **Roam Publish block** without blocks (Pages, the default, or Off) | Published blocks (as opposed to pages) get no Roam Publish block, so nothing is written under them. |
 | Change log paused on the website | The extension skips the confirmation and only checks the status. Entries are kept as history only. The token stays stored. |
 | No token stored | Same as paused. Verification was the only write. |
-| **Server URL** | Every request above goes to this server instead of roam.pub. |
