@@ -6,8 +6,8 @@ Everything not about the interaction lives in its own repo.
 
 | Topic | Where |
 | --- | --- |
-| Setup, usage, commands | [README → Setup / Usage](https://github.com/ejqs/roam-publish#setup) |
-| What renders, privacy summary | [README → Supported blocks / Privacy and safety](https://github.com/ejqs/roam-publish#privacy-and-safety) |
+| Setup, usage, commands | [Extension guide → Setup / Using it](extension-guide.md#setup) (short version: [README → Quick start](https://github.com/ejqs/roam-publish#quick-start)) |
+| What renders, privacy summary | [Extension guide → Supported blocks / Privacy and safety](extension-guide.md#supported-blocks) |
 | What's read, sent and written; Append API | [Data flow and the Append API](data-and-append-api.md) |
 | Serialization (refs, embeds, view types) | `src/serialize.ts` |
 | Local cache and settings | `src/state.ts`, `src/settings.ts` |
