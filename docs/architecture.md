@@ -48,7 +48,7 @@ Roam Depot serves extension 0.1.1 until 0.2.0 is pinned there, and roam.pub 0.18
 
 ## Flow 1: Connect a graph (website only)
 
-1. Sign up on roam.pub (email + password, email must be verified).
+1. Sign up on roam.pub with an email address; a one-time link sent there logs in (no passwords).
 2. On `/onboarding`, enter the graph name and a temporary **append-only** Roam API token. The browser sends its
    local date (`MM-DD-YYYY`) so the block lands on the user's today.
 3. The server calls Roam's Append API and writes `roam.pub connected this graph (safe to delete)` to that daily
