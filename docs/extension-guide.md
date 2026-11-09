@@ -52,6 +52,17 @@ Publish is one click. In your graph it also asks the **Visibility**: **Unlisted*
 whatever you picked last. A collection picked is the only place the page goes; it starts out the way the collection
 says.
 
+**Other ways in.** Hover an unpublished page's title for a publish icon (a globe with a plus); it stays hidden
+otherwise, and shows faintly on touch screens. Hold Cmd (Ctrl on Windows) for a share icon by the bullet of the
+block under the pointer, as Roam does for comments. Both open the same pop-up.
+
+**Linked pages.** The pop-up lists the pages this one links to that aren't published yet, unchecked. Checked ones are
+published right after it, the same way. When the page embeds or references blocks from other pages, it says so: that
+text is copied in as it is when you publish, and updates when you republish.
+
+Behind a password or members only, a page can't go on **Discover**, so the pop-up turns that choice off. When
+**Password, encrypted** can't be picked, the pop-up says why under **Publish to**.
+
 **Add to collection…** is in the pop-up's **Settings** tab.
 
 **Add to collection…** lists your collections and how the page starts out in each one, using that collection's own
@@ -78,10 +89,13 @@ You can also do all of this from the command palette: **Roam Publish: Publish or
 dashboard**.
 
 **Status in Roam.** A published page shows three icons after its title: its status, its stats and its settings. The
-status icon is a globe, an eye crossed out when the page is unlisted, or a lock when it's encrypted. It's green when the page is up to date, and orange with a dot
+status icon is a globe, an eye crossed out when the page is unlisted, or a lock when it's behind a password (encrypted
+or not) or members only. It's green when the page is up to date, and orange with a dot
 when it changed since you last published it. Each icon opens a pop-up about that page: its status, views, upvotes
-and readers' countries, and the same actions as the menu. A block published on its own gets a ring on its bullet, and blocks
-edited since their page was last published get a bar beside them. Nothing is written to your graph to show these.
+and readers' countries, and the same actions as the menu. A block published on its own gets a ring on its bullet, with a small lock or crossed-out eye
+when it isn't public, and blocks edited since their page was last published get a bar beside them. [[Links]] and
+#tags to published pages get a small icon after them, the same three as the titles. On a published page, links to
+pages that aren't published have a dotted underline, so you can see what readers can't follow. Nothing is written to your graph to show these.
 Set **Status in Roam** to **Titles only** or **Off** to show less.
 
 **Settings in Roam.** The settings icon changes the page's settings on roam.pub: its visibility, byline, view count
