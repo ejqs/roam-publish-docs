@@ -53,9 +53,9 @@ Production enforces the wait: the production pre-deploy step (`bun run db:migrat
 first, which fails the deploy while anyone active in the last 30 days is on an extension older than
 `EXT_MIN_VERSION`. There's no override.
 
-Upcoming now: **Password pages must be encrypted in Roam** (website 1.0.0, needs extension 0.2.0). Older
-extensions still send the plain tree and roam.pub encrypts it (v1); 1.0.0 stops accepting that, so every Password
-page is end-to-end encrypted.
+Upcoming now: nothing. The planned "Password pages must be encrypted in Roam" (website 1.0.0) was dropped in
+website 0.28.3: encryption is optional (a Password lock needs 4+ characters; 10+ makes a page end-to-end encrypted),
+so roam.pub keeps accepting plain trees from every extension.
 
 ## Checklist for a contract change
 

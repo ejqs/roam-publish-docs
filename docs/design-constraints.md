@@ -92,6 +92,5 @@ Rules internal to one repo (e.g. how access defaults or Discover work) live in t
     re-checks the plan on `POST` and answers `409 { reseal: true }` when it moved; the extension retries once.
 26. **Only public keys reach the extension.** It never sees a password, a private key or a reader's key, and
     keeps no content key after the publish.
-27. **Falling back is always allowed for now.** No seal route (`404`), no X25519 in Roam, or an extension before
-    0.2.0: the plain tree is sent and the server encrypts it (v1). Website 1.0.0 will refuse that for encrypted
-    pages once every active extension is 0.2.0+ ([shipping-changes.md](shipping-changes.md)).
+27. **Falling back is always allowed.** No seal route (`404`), no X25519 in Roam, or an extension before 0.2.0:
+    the plain tree is sent and the server encrypts it (v1). No release is planned to refuse it.

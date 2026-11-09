@@ -14,12 +14,3 @@ Assumptions that involve both repos and haven't been verified. Single-repo quest
   falls back to a title query.
 - **Stale local cache.** The extension's cache is refilled only when empty or on "Sync". Changes made on the
   website (unpublish, visibility) aren't reflected until then; the server is always authoritative.
-- **Can every Roam publish v2 once the plain path goes?** Extension 0.2.0 needs X25519 in WebCrypto to encrypt in
-  Roam, and falls back to sending the plain tree (v1) without it, for example in an older Roam desktop app. Website
-  1.0.0, announced on `/updates/upcoming`, will refuse plain trees for encrypted pages, so such a Roam couldn't
-  republish them. Either the extension bundles an X25519 fallback (as the design suggested, `@noble/curves`) or the
-  server keeps v1 for clients that can't seal. *(Extension `canSeal` in `src/seal.ts`; server
-  `src/app/api/ext/publications/route.ts`.)*
-- **Is "Password always means encrypted" next?** The Visibility design (2026-10-08) decided Password pages would
-  always be end-to-end encrypted, but today encryption is still opt-in per page or through "Encrypt new password
-  pages" (website 0.18.0), and a Password page that isn't encrypted is only gated. The docs describe what's built.
