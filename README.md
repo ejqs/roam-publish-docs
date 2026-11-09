@@ -16,10 +16,12 @@ what spans both — the boundary, the shared invariants, and how to change them 
    encrypted pages.
 4. [Data flow and the Append API](docs/data-and-append-api.md) — what the extension reads, sends and writes, and how
    roam.pub uses Roam's Append API.
-5. [Shipping changes](docs/shipping-changes.md) — changing the contract without breaking installed extensions,
+5. [Extension guide](docs/extension-guide.md) — setup details, menus, settings, supported blocks and privacy, in full
+   (the extension's README has the short version).
+6. [Shipping changes](docs/shipping-changes.md) — changing the contract without breaking installed extensions,
    versions, and the upcoming-changes process.
-6. [Open questions](docs/open-questions.md) — unverified assumptions that involve both sides.
-7. [Where things are documented](docs/where-to-look.md) — pointers into each repo for everything else.
+7. [Open questions](docs/open-questions.md) — unverified assumptions that involve both sides.
+8. [Where things are documented](docs/where-to-look.md) — pointers into each repo for everything else.
 
 `inbox/` holds raw notes not yet folded in.
 

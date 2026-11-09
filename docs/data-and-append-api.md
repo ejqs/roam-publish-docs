@@ -3,8 +3,8 @@
 What the extension reads from a graph, what it sends to roam.pub, what it writes back into the graph, and how
 roam.pub uses Roam's Append API. Written for anyone checking what Roam Publish does with their data.
 
-The short version is in the extension's README under
-[Privacy and safety](https://github.com/ejqs/roam-publish#privacy-and-safety). Code is the source of truth: the
+The short version is in the extension's README under [Privacy](https://github.com/ejqs/roam-publish#privacy); the full one is in the
+[extension guide](extension-guide.md#privacy-and-safety). Code is the source of truth: the
 extension's `src/publish.ts`, `src/serialize.ts`, `src/index.ts`, and the server's `src/lib/changelog.ts`,
 `src/lib/roam-append.ts` and `src/server/actions/onboarding.ts`.
 
