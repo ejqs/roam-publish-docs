@@ -11,7 +11,8 @@ main features and a quick start. Keep this page in step with it.
    (Roam: Settings → Graph → API tokens). Use a graph you own. roam.pub adds a block to today's daily note
    (`roam.pub connected this graph (safe to delete)`), which you can delete afterwards.
 3. In Roam, open **Settings → Roam Publish** and click **Open dashboard**, which opens your API keys. Copy the key from the website and paste it into
-   **API key**; the extension says which graph it works for.
+   **API key**; the extension says which graph it works for. Or just publish: without a key (from extension 0.4.0),
+   the extension opens these steps with a field to paste the key, checked as you paste it.
 
 > [!WARNING]
 > Verifying a graph may leave behind an `[[API Token: …]]` page in your graph that can't be deleted. Roam creates it
@@ -30,7 +31,8 @@ The old key stops working.
 
 1. Right-click a page title or a bullet.
 2. Choose **Roam Publish: Page…** or **Roam Publish: Block…**.
-3. Click **Publish**. The link is copied to your clipboard.
+3. Pick where it goes and its visibility, then click **Publish page** (or **Publish block**). The link is copied to
+   your clipboard.
 
 **On roam.pub** you also get these. Manage them from the [dashboard](https://roam.pub/dashboard), or click **Open
 dashboard** in the extension settings.
@@ -43,12 +45,25 @@ dashboard** in the extension settings.
 - **Discover**, where readers find and upvote pages.
 - **RSS** for your readers.
 
-**Publish to.** Publishing something new asks where it goes: your graph, your graph encrypted with its password,
-or one of your collections. It starts on your graph's **New pages go to** setting on roam.pub, so Publish is one
-click. Turn off **Ask where to publish** to skip the question.
+**Publish to.** Publishing something new opens one pop-up that asks where it goes: your graph, your graph encrypted
+with its password, or one of your collections. It starts on your graph's **New pages go to** setting on roam.pub, so
+Publish is one click. In your graph it also asks the **Visibility**: **Unlisted** (only people with the link),
+**Public** (your graph's front page) or **Discover**, set before the page goes live. It starts on Unlisted, then on
+whatever you picked last. A collection picked is the only place the page goes; it starts out the way the collection
+says.
 
-New pages and blocks are published **Unlisted**: only people with the link can see them. The toast offers **Make
-public** and **Put on Discover** right away, and **Add to collection…** when you're in a collection.
+**Other ways in.** Hover an unpublished page's title for a publish icon (a globe with a plus); it stays hidden
+otherwise, and shows faintly on touch screens. Hold Cmd (Ctrl on Windows) for a share icon by the bullet of the
+block under the pointer, as Roam does for comments. Both open the same pop-up.
+
+**Linked pages.** The pop-up lists the pages this one links to that aren't published yet, unchecked. Checked ones are
+published right after it, the same way. When the page embeds or references blocks from other pages, it says so: that
+text is copied in as it is when you publish, and updates when you republish.
+
+Behind a password or members only, a page can't go on **Discover**, so the pop-up turns that choice off. When
+**Password, encrypted** can't be picked, the pop-up says why under **Publish to**.
+
+**Add to collection…** is in the pop-up's **Settings** tab.
 
 **Add to collection…** lists your collections and how the page starts out in each one, using that collection's own
 defaults (public, on Discover, password-protected or members only). When the collection is password-protected or
@@ -59,23 +74,28 @@ collection with the collection's password. Collections without a password that c
 
 **Collapsed blocks.** A page is published with its blocks collapsed as they are in Roam, or all expanded if you set
 **Collapsed blocks** to **Expanded**. Readers can open and close blocks either way. Republishing keeps the published
-page's open and collapsed blocks; when only those differ from Roam's, the status toast offers **Sync open/collapsed
+page's open and collapsed blocks; when only those differ from Roam's, the pop-up offers **Sync open/collapsed
 blocks** instead.
 
 Open the same menu again to check whether it's published and its visibility. It offers one action when there's
-something to do (**Republish** after edits, or **Sync open/collapsed blocks**), then **Add to collection…** and
-**Unpublish**. Visibility is changed on roam.pub, from the page **Open** goes to. A page can only go on Discover when
+something to do (**Republish** after edits, or **Sync open/collapsed blocks**), then **Open**, **Copy status link**
+and **Unpublish**. Visibility, byline and collections are changed in its **Settings** tab. A page can only go on Discover when
 it's open to everyone, shown in your graph, and your graph's front page and search engines are on. Unpublishing asks first: it deletes the page on roam.pub along with
 its access settings, passwords, views, upvotes and places in collections. On a shared graph, pages another member
 published show their status only; only they or the graph's owner can change them.
 
-You can also do all of this from the command palette: type "Roam Publish".
+You can also do all of this from the command palette: **Roam Publish: Publish or update current page…** and
+**Publish or update focused block…** open the same pop-up, and there's **Unpublish current page** and **Open
+dashboard**.
 
 **Status in Roam.** A published page shows three icons after its title: its status, its stats and its settings. The
-status icon is a globe, an eye crossed out when the page is unlisted, or a lock when it's encrypted. It's green when the page is up to date, and orange with a dot
+status icon is a globe, a link when the page is unlisted (only people with the link can open it), or a lock when it's behind a password (encrypted
+or not) or members only. It's green when the page is up to date, and orange with a dot
 when it changed since you last published it. Each icon opens a pop-up about that page: its status, views, upvotes
-and readers' countries, and the same actions as the menu. A block published on its own gets a ring on its bullet, and blocks
-edited since their page was last published get a bar beside them. Nothing is written to your graph to show these.
+and readers' countries, and the same actions as the menu. A block published on its own gets a ring on its bullet, with a small lock or link icon
+when it isn't public, and blocks edited since their page was last published get a bar beside them. [[Links]] and
+#tags to published pages get a small icon after them, the same three as the titles. Pages that aren't published get no icon. On a published page, links to
+pages that aren't published have a dotted underline, so you can see what readers can't follow. Nothing is written to your graph to show these.
 Set **Status in Roam** to **Titles only** or **Off** to show less.
 
 **Settings in Roam.** The settings icon changes the page's settings on roam.pub: its visibility, byline, view count
@@ -130,13 +150,12 @@ check references, embeds and children first. Nothing else from your graph is sen
 | **Dashboard** | Opens the roam.pub dashboard, at your API keys until you've added one. API keys, access, passwords, collections, members and the change log are managed there. |
 | **API key** | Your key for this graph (see Setup). Pasting it checks it at once and says which graph it works for. |
 | **Author name** | Your byline on pages that show authors. Blank: your @username. |
-| **Ask where to publish** | On (default): Publish asks where something new goes. Off: it goes where **New pages go to** says on roam.pub. |
 | **Status in Roam** | **Titles and blocks** (default): the icons after published page titles, rings on published blocks and bars beside edited blocks. **Titles only**, or **Off**. |
 | **Top bar button** | On (default): a globe in Roam's top bar opens the dashboard. Off: use the command palette. |
 | **Collapsed blocks** | **As in Roam** (default): blocks collapsed in Roam start collapsed on a first publish. **Expanded**: every block starts open. Republishing keeps the published page's. |
-| **Roam Publish block** | Where the block with the status link is added: **Pages** (default), **Pages and blocks**, **Blocks only** or **Off**. Off: nothing is written into your pages; roam.pub still keeps each page's status link and history. |
-| **Block position** | **First** or **Last** under the page or block. |
-| **Block tag** | The block's text. Default `[[Roam Publish]]` (graphs set up before this keep `#published`). Blank: no tag. |
+| **Roam Publish block** | Where the block with the status link is added: **Pages**, **Pages and blocks**, **Blocks only** or **Off**. **Off** is the default for new installs (from 0.4.0; graphs set up before keep **Pages** or their choice): nothing is written into your pages, roam.pub still keeps each page's status link (**Copy status link** in the pop-up) and history, and there's no change log in Roam. |
+| **Block position** | With the block on: **First** or **Last** under the page or block. |
+| **Block tag** | With the block on: the block's text. Default `[[Roam Publish]]` (graphs set up before this keep `#published`). Blank: no tag. |
 
 Changing the tag edits existing blocks in place the next time you publish them. The status link always reads
 `Roam Publish Status`.
@@ -154,8 +173,8 @@ Changing the tag edits existing blocks in place the next time you publish them. 
   only when it changed. **Status in Roam: Off** stops this.
 - **Settings and the dashboard** ask roam.pub only when you open them, and change settings only when you press Save.
   The dashboard's numbers are ones roam.pub already keeps; its "Changed since published" list is worked out in Roam.
-- **Written to your graph:** the Roam Publish block when you publish, and change log entries if you kept an
-  append-only token. Nothing else.
+- **Written to your graph:** nothing unless the Roam Publish block is on (off by default for new installs); then that
+  block when you publish, and change log entries if you kept an append-only token. Nothing else.
 - **Encrypted graphs** are supported. The extension only sends the data you choose to publish.
 - **Encrypted pages:** a Password page that roam.pub encrypts is encrypted in Roam before it's sent (from 0.2.0), so
   roam.pub only gets the encrypted page and never sees its text or title (it calls it "Encrypted page"). The
