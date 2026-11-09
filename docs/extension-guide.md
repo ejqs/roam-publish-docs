@@ -89,12 +89,12 @@ You can also do all of this from the command palette: **Roam Publish: Publish or
 dashboard**.
 
 **Status in Roam.** A published page shows three icons after its title: its status, its stats and its settings. The
-status icon is a globe, an eye crossed out when the page is unlisted, or a lock when it's behind a password (encrypted
+status icon is a globe, a link when the page is unlisted (only people with the link can open it), or a lock when it's behind a password (encrypted
 or not) or members only. It's green when the page is up to date, and orange with a dot
 when it changed since you last published it. Each icon opens a pop-up about that page: its status, views, upvotes
-and readers' countries, and the same actions as the menu. A block published on its own gets a ring on its bullet, with a small lock or crossed-out eye
+and readers' countries, and the same actions as the menu. A block published on its own gets a ring on its bullet, with a small lock or link icon
 when it isn't public, and blocks edited since their page was last published get a bar beside them. [[Links]] and
-#tags to published pages get a small icon after them, the same three as the titles. On a published page, links to
+#tags to published pages get a small icon after them, the same three as the titles. Pages that aren't published get no icon. On a published page, links to
 pages that aren't published have a dotted underline, so you can see what readers can't follow. Nothing is written to your graph to show these.
 Set **Status in Roam** to **Titles only** or **Off** to show less.
 
