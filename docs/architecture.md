@@ -241,5 +241,5 @@ The v2 publish, from extension 0.2.0:
 5. The page is stored as v2 with `encryptedBy: "extension {version}"`, no search text or tags. A lock without a
    key pair, or one whose password was reset, leaves it `needsRepublish`.
 
-A v1 page becomes v2 the next time it's republished from extension 0.2.0. Website 1.0.0 will stop accepting plain
-trees for encrypted pages, announced at `/updates/upcoming` ([shipping-changes.md](shipping-changes.md)).
+A v1 page becomes v2 the next time it's republished from extension 0.2.0. roam.pub keeps accepting plain trees and
+encrypting them itself (v1): encryption is optional, so no release refuses them.
